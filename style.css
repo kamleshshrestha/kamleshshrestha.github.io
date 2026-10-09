@@ -152,3 +152,6 @@ body.falling .panel,body.falling .top,body.falling #dots,body.falling #hud,body.
 .fall-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--pink));box-shadow:0 0 14px var(--cyan)}
 .fall-bar i.run{width:100%;transition:width 10s linear}
 #fall .mini{font-size:11px;color:var(--dim)}
+
+/* very tall cards scroll instead of running off short screens */
+@media (min-width:821px){.panel{max-height:90vh;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(160,175,255,.3) transparent}}

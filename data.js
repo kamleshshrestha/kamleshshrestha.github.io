@@ -102,4 +102,4 @@ export const SKILLS = [
 ];
 export const CAT_COLORS = ['#22d3ee', '#fbbf24', '#f472b6', '#34d399'];
 
-export const ROLES = ['Data Analyst', 'NLP & LLM builder', 'Prompt Engineering trainer', 'MSc student @ Gisma', 'Storyteller with numbers'];
+export const ROLES = ['Designer turned AI Engineer', 'Data Analyst', 'NLP & LLM builder', 'Prompt Engineering trainer', 'MSc student @ Gisma'];
