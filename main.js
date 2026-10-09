@@ -3,7 +3,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-import { DETAILS, SKILLS, CAT_COLORS, ROLES } from './data.js?v=20261016';
+import { DETAILS, SKILLS, CAT_COLORS, ROLES } from './data.js?v=20261017';
 
 /* ------------------------------------------------------------------ *
  *  Setup
