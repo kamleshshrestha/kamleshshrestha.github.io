@@ -1,0 +1,5 @@
+# private source files — not part of the public site
+CV_*.docx
+IMG_*.jpg
+IMG_*.jpeg
+.DS_Store

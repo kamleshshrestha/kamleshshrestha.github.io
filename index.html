@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kamlesh Shrestha — Data & AI Portfolio</title>
+<meta name="description" content="Interactive 3D portfolio of Kamlesh Shrestha — Data Analyst, NLP & LLM builder, Prompt Engineering trainer. MSc Data Science, AI & Digital Business, Berlin.">
+<meta name="theme-color" content="#05060f">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2305060f'/%3E%3Cpath d='M18 14v36M18 33l22-19M24 30l20 20' stroke='%2322d3ee' stroke-width='6' stroke-linecap='round' fill='none'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=20261013">
+<script type="importmap">
+{ "imports": { "three": "./vendor/three/three.module.js", "three/addons/": "./vendor/three/addons/" } }
+</script>
+</head>
+<body>
+<canvas id="gl" aria-label="Interactive 3D portfolio scene"></canvas>
+
+<div id="loader">
+  <div class="loader-inner">
+    <div class="logo-mark">KS</div>
+    <h1>Kamlesh Shrestha</h1>
+    <p class="mono">Data · AI · Stories — an interactive portfolio</p>
+    <div class="bar"><i id="bar"></i></div>
+    <button id="enter" disabled>Loading universe…</button>
+    <p class="small">Best with sound on 🔊 · Scroll, swipe or use ← → to fly</p>
+  </div>
+</div>
+
+<header class="top">
+  <a class="brand" href="#" data-go="0" aria-label="Home">KS<span>.</span></a>
+  <button id="snd" class="icon-btn" title="Toggle sound" aria-label="Toggle sound">♪</button>
+</header>
+<nav id="dots" aria-label="Sections"></nav>
+
+<main id="panels">
+  <section class="panel" data-i="0">
+    <p class="kicker mono">Hello, world — I'm</p>
+    <h2 class="mega">Kamlesh<br>Shrestha</h2>
+    <p class="roles"><span id="role"></span><b class="caret">|</b></p>
+    <p class="lead">I turn messy data into decisions — and explain the results so that everyone in the room gets it.</p>
+    <div class="chips">
+      <span class="chip">📍 Berlin, Germany</span>
+      <span class="chip">⏱ Available 20h / week</span>
+      <span class="chip">🗣 EN C1 · DE A1 (improving weekly)</span>
+    </div>
+    <div class="cta">
+      <button class="btn primary" data-go="1">Start the tour →</button>
+      <button class="btn" data-go="6">Say hello</button>
+    </div>
+    <p class="hint mono">Tip: poke the AI core · catch the glowing shards ◆</p>
+  </section>
+
+  <section class="panel" data-i="1">
+    <p class="kicker mono">01 — About</p>
+    <h2>Analyst by craft,<br>teacher by habit.</h2>
+    <p>MSc student in Data Science, AI &amp; Digital Business with hands-on analyst experience in Python and SQL. I've built and tested NLP and LLM projects and taught Python and GenAI tools — so documenting and explaining data work for mixed audiences comes naturally.</p>
+    <div class="stats">
+      <div><b data-count="50000" data-suffix="+">0</b><span>records cleaned in SQL for monthly management reporting</span></div>
+      <div><b data-count="75" data-suffix="%">0</b><span>growth in corporate training delivery from a GenAI curriculum I designed</span></div>
+      <div><b data-count="27" data-suffix="%">0</b><span>of NLP misclassifications happened at high model confidence</span></div>
+      <div><b data-count="3">0</b><span>roles across analytics, training &amp; a startup</span></div>
+    </div>
+    <p class="hint mono">Click the dashboard for a spin ↻</p>
+  </section>
+
+  <section class="panel" data-i="2">
+    <p class="kicker mono">02 — Experience</p>
+    <h2>Career orbit</h2>
+    <p>Each planet is a role — the further out, the more recent. Click one to land on it.</p>
+    <ul class="rows" data-list="exp">
+      <li data-open="orson"><b>Data Analyst</b><span>Orson Infotech · 2025</span></li>
+      <li data-open="broadway"><b>Design &amp; Prompt Engineering Trainer</b><span>Broadway Infosys · 2023–26</span></li>
+      <li data-open="berojgaar"><b>Co-Founder</b><span>Be Rojgaar · 2021–23</span></li>
+    </ul>
+  </section>
+
+  <section class="panel compact" data-i="3">
+    <p class="kicker mono">03 — Projects</p>
+    <h2>The lab</h2>
+    <p>Three experiments. Hover to wake them up, click to open the case file.</p>
+    <ul class="rows" data-list="proj">
+      <li data-open="resume"><b>Resume Keyword Gap Checker</b><span>Flask · Gemini API</span></li>
+      <li data-open="intent"><b>Intent Classification</b><span>DistilBERT · NLP</span></li>
+      <li data-open="cars"><b>Used Car Market EDA</b><span>Pandas · Matplotlib</span></li>
+    </ul>
+  </section>
+
+  <section class="panel" data-i="4">
+    <p class="kicker mono">04 — Skills</p>
+    <h2>Skill sphere</h2>
+    <p>Drag to spin it. Hover a category to light up its skills.</p>
+    <div class="cats">
+      <div class="cat" data-cat="0"><i style="--c:#22d3ee"></i><b>Languages &amp; Data</b><span>Python · SQL · PostgreSQL · JavaScript · HTML · CSS</span></div>
+      <div class="cat" data-cat="1"><i style="--c:#fbbf24"></i><b>Analytics</b><span>Pandas · NumPy · Matplotlib · Seaborn · EDA · dashboards · KPI tracking</span></div>
+      <div class="cat" data-cat="2"><i style="--c:#f472b6"></i><b>AI &amp; ML</b><span>scikit-learn · TensorFlow · Hugging Face · NLP · LLMs · Gemini API · Prompt Engineering · AI agents</span></div>
+      <div class="cat" data-cat="3"><i style="--c:#34d399"></i><b>Tools &amp; Practices</b><span>Git · Flask · REST APIs · Agile/SCRUM · technical documentation</span></div>
+    </div>
+  </section>
+
+  <section class="panel" data-i="5">
+    <p class="kicker mono">05 — Education</p>
+    <h2>Learning curve</h2>
+    <p>Three towers, one direction: up. Click a tower for details.</p>
+    <ul class="rows" data-list="edu">
+      <li data-open="gisma"><b>MSc Data Science, AI &amp; Digital Business</b><span>Gisma · 2026–27 (exp.)</span></li>
+      <li data-open="msc"><b>MSc Information Technology &amp; Applied Security</b><span>London Met · 2020–22</span></li>
+      <li data-open="bsc"><b>BSc Multimedia Technologies</b><span>London Met · 2010–13</span></li>
+    </ul>
+    <p class="mini mono">Orbiting: Supervised ML (DeepLearning.AI, 2024) · Python for Everybody (U. Michigan, 2020) · <i>Build an LLM from Scratch</i> — in progress ✎</p>
+  </section>
+
+  <section class="panel" data-i="6">
+    <div class="avatar"><span class="ph"><img src="assets/avatar.jpg" alt="Photo of Kamlesh Shrestha" width="84" height="84"></span><span class="status mono">● open to work</span></div>
+    <p class="kicker mono">06 — Contact</p>
+    <h2>Let's build<br>something.</h2>
+    <p>Looking for a working-student role in data analytics &amp; AI (20h/week). Don't fall into the event horizon alone — or just write.</p>
+    <div class="cta col">
+      <a class="btn primary" href="mailto:kamleshshrestha.work@gmail.com">✉ kamleshshrestha.work@gmail.com</a>
+      <a class="btn" href="https://www.linkedin.com/in/kamleshshrestha/" target="_blank" rel="noopener">in &nbsp;LinkedIn</a>
+      <a class="btn" href="https://github.com/kamleshshrestha" target="_blank" rel="noopener">⌥ &nbsp;GitHub</a>
+    </div>
+    <p class="hint mono">Back to start: <a href="#" data-go="0">↑ fly home</a></p>
+  </section>
+</main>
+
+<aside id="drawer" aria-hidden="true">
+  <button id="close" class="icon-btn" aria-label="Close">✕</button>
+  <p class="kicker mono" id="d-kicker"></p>
+  <h3 id="d-title"></h3>
+  <p class="meta mono" id="d-meta"></p>
+  <ul id="d-list"></ul>
+  <div class="chips" id="d-tags"></div>
+  <div class="cta" id="d-links"></div>
+</aside>
+
+<div id="hud">
+  <div id="shards" title="Data shards found"><i>◆</i> <b id="shard-n">0</b><span>/<em id="shard-t">0</em></span></div>
+  <div id="nav-arrows">
+    <button id="prev" class="icon-btn" aria-label="Previous">↑</button>
+    <button id="next" class="icon-btn" aria-label="Next">↓</button>
+  </div>
+  <div id="hint" class="mono">scroll · swipe · ← →</div>
+</div>
+<div id="fall" aria-live="polite">
+  <div class="card">
+    <p class="kicker mono">// event horizon crossed</p>
+    <h3>Nothing escapes a black hole.<br>Luckily, my inbox is easier.</h3>
+    <p id="fall-msg">Entering the next dimension — my mailbox — in <b id="count">10</b>…</p>
+    <div class="fall-bar"><i id="fall-bar"></i></div>
+    <p class="mini mono">like Cooper in the tesseract, a message is about to cross space and time · Esc to turn back</p>
+  </div>
+</div>
+<div id="tip" class="mono"></div>
+<div id="toast"></div>
+
+<script type="module" src="main.js?v=20261013"></script>
+</body>
+</html>
