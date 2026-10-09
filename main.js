@@ -606,16 +606,18 @@ function buildEducation(g) {
   };
 }
 
+// Far from Contact the hole is a small, faint hint; it swells to full size/brightness as the camera closes in (set per frame).
+const BH_MIN = 0.05, BH_SCALE_MIN = 0.3; let bhReveal = 0;
 function buildContact(g) {
   // Black hole: event horizon, tilted accretion disk, lensed halo, infalling matter.
   const pickables = [];
   // flat disc (not a sphere) so the halo ring lies on the same plane — a sphere's near surface hides one side of the ring when viewed off-axis
   const horizon = new THREE.Mesh(new THREE.CircleGeometry(1.8, 128), new THREE.MeshBasicMaterial({ color: 0x000000, fog: false, side: THREE.DoubleSide })); g.add(horizon);
-  const U = { time: { value: 0 }, hover: { value: 0 } };
+  const U = { time: { value: 0 }, hover: { value: 0 }, rv: { value: BH_MIN } };
   const VS = `varying vec2 vP; void main(){ vP=position.xy; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`;
   const mk = (fs) => new THREE.ShaderMaterial({ uniforms: U, vertexShader: VS, fragmentShader: fs, transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending });
   // turbulent, differentially-rotating accretion disk — brighter on the approaching (left) side
-  const diskMat = mk(`uniform float time,hover; varying vec2 vP;
+  const diskMat = mk(`uniform float time,hover,rv; varying vec2 vP;
     float h(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
     float n(vec2 p,float P){ vec2 i=floor(p),f=fract(p); f=f*f*(3.-2.*f); float x0=mod(i.x,P),x1=mod(i.x+1.,P);
       return mix(mix(h(vec2(x0,i.y)),h(vec2(x1,i.y)),f.x),mix(h(vec2(x0,i.y+1.)),h(vec2(x1,i.y+1.)),f.x),f.y); }
@@ -631,11 +633,11 @@ function buildContact(g) {
       vec3 col=mix(vec3(1.,.97,.86),vec3(1.,.66,.27),smoothstep(0.,.2,t)); col=mix(col,vec3(.8,.38,.13),smoothstep(.2,.95,t));
       col=mix(col,vec3(.75,.85,1.),smoothstep(.55,0.,t)*pow(st,3.)*.5);
       float dop=.85+.25*(.5-.5*cos(a));
-      gl_FragColor=vec4(col*I*dop*1.25*(1.+hover*.4),1.); }`);
+      gl_FragColor=vec4(col*I*dop*1.25*(1.+hover*.4)*rv,1.); }`);
   const diskGroup = new THREE.Group(); g.add(diskGroup);
   const disk = new THREE.Mesh(new THREE.RingGeometry(2.2, 8.8, 192, 1), diskMat); disk.rotation.x = -Math.PI / 2; diskGroup.add(disk);
   // lensed far side of the disk bent over the top & under the bottom of the shadow, plus a razor-thin photon ring
-  const haloMat = mk(`uniform float time,hover; varying vec2 vP;
+  const haloMat = mk(`uniform float time,hover,rv; varying vec2 vP;
     void main(){ float r=length(vP); float a=atan(vP.y,vP.x); float t=(r-1.82)/1.9;
       float vert=pow(abs(sin(a)),1.3);
       float photon=exp(-t*60.);
@@ -643,7 +645,7 @@ function buildContact(g) {
       float bands=.9+.1*sin(a*3.+time*.5);
       float I=smoothstep(0.,.006,t)*(photon*2.0+lens*2.0*bands)*(1.-smoothstep(.45,1.45,t));
       vec3 col=mix(vec3(1.,.98,.9),vec3(1.,.62,.24),clamp(t*1.6,0.,1.));
-      gl_FragColor=vec4(col*I*(1.+hover*.45),1.); }`);
+      gl_FragColor=vec4(col*I*(1.+hover*.45)*rv,1.); }`);
   const halo = new THREE.Mesh(new THREE.RingGeometry(1.8, 4.6, 192, 1), haloMat); halo.position.z = 0.02; g.add(halo);
 
 
@@ -661,25 +663,25 @@ function buildContact(g) {
       vec3 p=vec3(c*dir.x-s*dir.z,dir.y,s*dir.x+c*dir.z)*r; p.y*=mix(1.,.1,smoothstep(.25,.95,u));
       vA=al*smoothstep(0.,.06,u)*(1.-smoothstep(.93,1.,u))*(1.-seg*.85)*.75;
       vC=mix(vec3(.55,.7,1.),vec3(1.,.8,.48),smoothstep(.15,.9,u))*(.5+2.6*u*u); vLoc=p.xy; return p; }`;
-  const FADE = `varying vec2 vLoc; float inShadow(){ return smoothstep(1.8,2.5,length(vLoc)); }`;
+  const FADE = `uniform float rv; varying vec2 vLoc; float inShadow(){ return smoothstep(1.8,2.5,length(vLoc)); }`;
   const trailGeo = new THREE.BufferGeometry(); trailGeo.setAttribute('position', new THREE.Float32BufferAttribute(dirs, 3));
   trailGeo.setAttribute('dir', new THREE.Float32BufferAttribute(dirs, 3)); trailGeo.setAttribute('seed', new THREE.Float32BufferAttribute(seeds, 1)); trailGeo.setAttribute('seg', new THREE.Float32BufferAttribute(segs, 1));
   const trails = new THREE.LineSegments(trailGeo, new THREE.ShaderMaterial({ uniforms: U, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-    vertexShader: `${FLOW} void main(){ gl_Position=projectionMatrix*modelViewMatrix*vec4(flow(),1.); }`, fragmentShader: `${FADE} varying vec3 vC; varying float vA; void main(){ gl_FragColor=vec4(vC,vA*inShadow()); }` }));
+    vertexShader: `${FLOW} void main(){ gl_Position=projectionMatrix*modelViewMatrix*vec4(flow(),1.); }`, fragmentShader: `${FADE} varying vec3 vC; varying float vA; void main(){ gl_FragColor=vec4(vC,vA*inShadow()*rv); }` }));
   trails.frustumCulled = false; diskGroup.add(trails);
   const hd = [], hs = [], hg = []; for (let i = 0; i < TN; i++) { const d = trailGeo.attributes.dir; const o = i * SEG * 2 * 3; hd.push(d.array[o], d.array[o + 1], d.array[o + 2]); hs.push(trailGeo.attributes.seed.array[i * SEG * 2]); hg.push(0); }
   const headGeo = new THREE.BufferGeometry(); headGeo.setAttribute('position', new THREE.Float32BufferAttribute(hd, 3)); headGeo.setAttribute('dir', new THREE.Float32BufferAttribute(hd, 3)); headGeo.setAttribute('seed', new THREE.Float32BufferAttribute(hs, 1)); headGeo.setAttribute('seg', new THREE.Float32BufferAttribute(hg, 1));
   const heads = new THREE.Points(headGeo, new THREE.ShaderMaterial({ uniforms: U, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
     vertexShader: `${FLOW} void main(){ vec4 mv=modelViewMatrix*vec4(flow(),1.); gl_PointSize=clamp(95./-mv.z,1.5,10.); gl_Position=projectionMatrix*mv; }`,
-    fragmentShader: `${FADE} varying vec3 vC; varying float vA; void main(){ float d=length(gl_PointCoord-.5); gl_FragColor=vec4(vC,vA*smoothstep(.5,0.,d)*inShadow()); }` }));
+    fragmentShader: `${FADE} varying vec3 vC; varying float vA; void main(){ float d=length(gl_PointCoord-.5); gl_FragColor=vec4(vC,vA*smoothstep(.5,0.,d)*inShadow()*rv); }` }));
   heads.frustumCulled = false; diskGroup.add(heads);
   return {
     pickables,
     update(t, dt) {
-      warp += dt * (state.fall ? 9 * Math.pow(state.fall.u || 0, 2) : 0); U.time.value = t + warp; hv = lerp(hv, ht, 0.1); U.hover.value = hv;
+      warp += dt * (state.fall ? 9 * Math.pow(state.fall.u || 0, 2) : 0); U.time.value = t + warp; hv = lerp(hv, ht, 0.1); U.hover.value = hv; U.rv.value = lerp(BH_MIN, 1, bhReveal * bhReveal);
       diskGroup.rotation.x = 0.17 - mouseS.y * 0.12 + Math.sin(t * 0.3) * 0.015; diskGroup.rotation.z = -0.1 + mouseS.x * 0.08;
       g.rotation.y = lerp(g.rotation.y, mouseS.x * 0.15, 0.05);
-      g.scale.setScalar(2.9 * (1 + Math.sin(t * 0.4) * 0.03 + hv * 0.03));
+      g.scale.setScalar(2.9 * lerp(BH_SCALE_MIN, 1, bhReveal) * (1 + Math.sin(t * 0.4) * 0.03 + hv * 0.03));
     },
   };
 }
@@ -929,9 +931,9 @@ function frame() {
   scene.userData.starMat.uniforms.time.value = t;
   const bTarget = state.fall ? 0.08 + 1.2 * Math.pow(state.fall.u, 2.5) * (1 - THREE.MathUtils.smoothstep(state.fall.u, 0.85, 1)) : state.cur === 6 && !state.flying ? 0.08 : 0.8; bloom.strength = lerp(bloom.strength, bTarget, 0.04);
   updateFlight(t); placeCamera(); camera.updateMatrixWorld();
-  { const sm = scene.userData.starMat.uniforms, bp = stationPos[6], dd = camera.position.distanceTo(bp); sm.lens.value = 1 - THREE.MathUtils.smoothstep(dd, 45, 120); sm.aspect.value = camera.aspect;
-    const nd = bp.clone().project(camera); sm.bh.value.set(nd.x, nd.y, ((1.8 * 2.9) / (dd * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)))) * 1.18); }
-  stations.forEach((s, i) => { if (Math.abs(i - (state.flying ? state.target ?? state.cur : state.cur)) <= 2 || Math.abs(i - state.cur) <= 2) s.update(t, dt); });
+  { const sm = scene.userData.starMat.uniforms, bp = stationPos[6], dd = camera.position.distanceTo(bp); bhReveal = 1 - THREE.MathUtils.smoothstep(dd, 18, 100); sm.lens.value = 1 - THREE.MathUtils.smoothstep(dd, 45, 120); sm.aspect.value = camera.aspect;
+    const nd = bp.clone().project(camera); sm.bh.value.set(nd.x, nd.y, ((1.8 * (stations[6] ? stations[6].group.scale.x : 2.9)) / (dd * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)))) * 1.18); }
+  stations.forEach((s, i) => { if (i === 6 || Math.abs(i - (state.flying ? state.target ?? state.cur : state.cur)) <= 2 || Math.abs(i - state.cur) <= 2) s.update(t, dt); });
   shards.forEach((m) => { m.rotation.y += dt * 1.6; m.rotation.x += dt * 0.7; m.position.y += Math.sin(t * 1.6 + m.userData.ph) * 0.004; m.children[0].material.opacity = 0.4 + 0.25 * Math.sin(t * 3 + m.userData.ph); });
   updateBursts(dt);
   composer.render();
